@@ -1,10 +1,13 @@
 import streamlit as st
-import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
+# Load .env
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+
+# Buat client baru (versi OpenAI terbaru)
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 st.set_page_config(page_title="AI Chatbot Sekolah", layout="centered")
 st.title("📚 AI Chatbot Pelajaran SD")
@@ -18,7 +21,8 @@ prompt_user = st.text_input("Tanya apa saja tentang pelajaran tersebut:")
 if prompt_user:
     with st.spinner("Sedang berpikir..."):
         system_instruction = f"Kamu adalah guru SD yang pintar dan ramah. Jawablah dengan bahasa sederhana untuk anak-anak. Fokus pada pelajaran: {subject}."
-        response = openai.ChatCompletion.create(
+
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": system_instruction},
@@ -27,5 +31,6 @@ if prompt_user:
             temperature=0.7,
             max_tokens=300
         )
-        answer = response['choices'][0]['message']['content']
+
+        answer = response.choices[0].message.content
         st.success(answer)
